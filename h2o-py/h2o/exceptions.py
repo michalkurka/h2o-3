@@ -1,21 +1,26 @@
 # -*- encoding: utf-8 -*-
+# Copyright: (c) 2016 H2O.ai
+# License:   Apache License Version 2.0 (see LICENSE for details)
 """
-Exception classes used by H2OConnection and H2OLocalServer.
+:mod:`h2o.exceptions` -- all exceptions classes in h2o module.
 
-:copyright: (c) 2016 H2O.ai
-:license:   Apache License Version 2.0 (see LICENSE for details)
+All H2O exceptions derive from :class:`H2OError`.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 __all__ = ("H2OStartupError", "H2OConnectionError", "H2OServerError", "H2OResponseError")
 
 
+class H2OError(Exception):
+    """Base class for all H2O exceptions."""
 
-class H2OStartupError(Exception):
+
+class H2OStartupError(H2OError):
     """Raised by H2OLocalServer when the class fails to launch a server."""
 
 
-class H2OConnectionError(Exception):
+class H2OConnectionError(H2OError):
     """
     Raised when connection to an H2O server cannot be established.
 
@@ -26,11 +31,11 @@ class H2OConnectionError(Exception):
 
 # This should have been extending from Exception as well; however in old code version all exceptions were
 # EnvironmentError's, so for old code to work we extend H2OResponseError from EnvironmentError.
-class H2OResponseError(EnvironmentError):
+class H2OResponseError(H2OError, EnvironmentError):
     """Raised when the server encounters a user error and sends back an H2OErrorV3 response."""
 
 
-class H2OServerError(Exception):
+class H2OServerError(H2OError):
     """
     Raised when any kind of server error is encountered.
 
