@@ -574,14 +574,6 @@ public class NewChunk extends Chunk {
     assert _sparseLen <= _len;
   }
 
-  public void addFrom(Chunk chk, int row) {
-    if (chk.isNA(row)) {
-      addNA();
-    } else
-      switch (chk._vec.get_type()) {
-      }
-  }
-
   public ChunkAppender createAppender(int type, Object defaultValue) {
     switch (type) {
       case Vec.T_NUM:
@@ -1175,6 +1167,10 @@ public class NewChunk extends Chunk {
     }
     if( rerun ) { _naCnt = -1;  type(); } // Re-run rollups after dropping all numbers/categoricals
 
+    // If the data is UUIDs there's not much compression going on
+    if( _ds != null && _ms != null )
+      return chunkUUID();
+
     boolean sparse = false;
     boolean na_sparse = false;
     // sparse? treat as sparse iff fraction of noncompressed elements is less than 1/MIN_SPARSE_RATIO
@@ -1187,9 +1183,6 @@ public class NewChunk extends Chunk {
     } else if (_sparseLen != _len)
       cancel_sparse();
     
-    // If the data is UUIDs there's not much compression going on
-    if( _ds != null && _ms != null )
-      return chunkUUID();
     // cut out the easy all NaNs case; takes care of constant na_sparse
     if(_naCnt == _len) return new C0DChunk(Double.NaN,_len);
     // If the data was set8 as doubles, we do a quick check to see if it's
