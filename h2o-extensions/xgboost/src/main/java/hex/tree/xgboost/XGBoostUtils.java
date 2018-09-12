@@ -110,16 +110,18 @@ public class XGBoostUtils {
         } else {
             Log.debug("Treating matrix as dense.");
             BigDenseMatrix data = null;
+            DMatrix tm = null;
             try {
                 data = allocateDenseMatrix(nRows, di);
                 long actualRows = denseChunk(data, chunks, f, w, di, resp, weights, f.vec(response).new Reader());
                 assert data.nrow == actualRows;
+                tm = new DMatrix(data, Float.NaN);
             } finally {
-                if (data != null) {
+                if ((tm == null) && (data != null)) { // we failed to create the DMatrix => we need to free the memory
                     data.dispose();
                 }
             }
-            trainMat = new DMatrix(data, Float.NaN);
+            trainMat = tm;
         }
 
         assert trainMat.rowNum() == nRows;
